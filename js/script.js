@@ -118,6 +118,9 @@ const translations = {
     }
 };
 
+// ⚠️ Apps Script 배포 후 아래 URL을 교체하세요
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsH6ivf0jkD73V8wnTcFpBkh5TUcV8MC5oQmYGmbOd7j6txHGk4yfNJ72s97hwSepR/exec';
+
 document.addEventListener('DOMContentLoaded', () => {
     const defaultLang = 'en';
     let currentLang = defaultLang;
@@ -130,24 +133,115 @@ document.addEventListener('DOMContentLoaded', () => {
             const key = element.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) {
                 if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-                    // Update placeholder if needed, though labels are used here
+                    // labels are used, not placeholders
                 } else {
                     element.innerHTML = translations[lang][key];
                 }
             }
         });
 
-        // Update button states
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`lang-${lang}`).classList.add('active');
     };
 
-    // Event Listeners
     document.getElementById('lang-en').addEventListener('click', () => updateLanguage('en'));
     document.getElementById('lang-de').addEventListener('click', () => updateLanguage('de'));
-
-    // Initialize
     updateLanguage(defaultLang);
+
+    // ── 문의 폼 제출 처리 ──────────────────────────────────────
+    const form = document.querySelector('.contact-form');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+
+            try {
+                // 파일을 base64로 변환
+                const fileInput = document.getElementById('file');
+                let fileData = null;
+                if (fileInput.files && fileInput.files[0]) {
+                    fileData = await readFileAsBase64(fileInput.files[0]);
+                }
+
+                const payload = {
+                    name:     document.getElementById('name').value.trim(),
+                    company:  document.getElementById('company').value.trim(),
+                    email:    document.getElementById('email').value.trim(),
+                    country:  document.getElementById('country').value.trim(),
+                    product:  document.getElementById('product').value.trim(),
+                    quantity: document.getElementById('quantity').value.trim(),
+                    details:  document.getElementById('details').value.trim(),
+                    file:     fileData
+                };
+
+                const res = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                const json = await res.json();
+
+                if (json.success) {
+                    showMessage('success', currentLang === 'de'
+                        ? 'Ihre Anfrage wurde erfolgreich gesendet!'
+                        : 'Your inquiry has been submitted successfully!');
+                    form.reset();
+                } else {
+                    throw new Error(json.error || 'Unknown error');
+                }
+            } catch (err) {
+                console.error(err);
+                showMessage('error', currentLang === 'de'
+                    ? 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.'
+                    : 'Something went wrong. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+    }
 });
+
+// 파일을 base64 문자열로 읽기
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            // result: "data:mime/type;base64,XXXX..." → base64 부분만 추출
+            const base64 = reader.result.split(',')[1];
+            resolve({ name: file.name, mimeType: file.type, data: base64 });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// 폼 위에 성공/실패 메시지 표시
+function showMessage(type, text) {
+    const existing = document.getElementById('form-message');
+    if (existing) existing.remove();
+
+    const msg = document.createElement('div');
+    msg.id = 'form-message';
+    msg.style.cssText = `
+        padding: 14px 20px;
+        margin-bottom: 20px;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 15px;
+        background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
+        color:      ${type === 'success' ? '#155724' : '#721c24'};
+        border:     1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'};
+    `;
+    msg.textContent = text;
+
+    const form = document.querySelector('.contact-form');
+    form.insertAdjacentElement('beforebegin', msg);
+    msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    setTimeout(() => msg.remove(), 6000);
+}
