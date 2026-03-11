@@ -502,12 +502,12 @@ ul {
 
 .contact-form-wrapper {
     max-width: 800px;
-    /* Slightly wider */
     margin: 0 auto;
     background: white;
     padding: 50px;
     border-radius: 8px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
 .contact-form {
@@ -519,6 +519,7 @@ ul {
 .form-group {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .full-width {
@@ -540,6 +541,8 @@ label {
 input,
 textarea,
 select {
+    width: 100%;
+    min-width: 0;
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
