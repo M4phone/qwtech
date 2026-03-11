@@ -1,0 +1,10 @@
+# 압축 파일
+*.Zip
+*.zip
+
+# 기획 문서 (용량/불필요)
+*.hwp
+*.pdf
+
+# 백업
+index_backup.html

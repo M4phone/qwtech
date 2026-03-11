@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"Set-Clipboard -Value @'':*)",
+      "Bash(powershell -Command \"Get-Clipboard\")"
+    ]
+  }
+}
