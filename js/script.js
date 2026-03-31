@@ -29,8 +29,17 @@ const translations = {
         "cert_iso": "ISO9001 / ISO14001",
         "cert_rohs": "RoHS Certification",
         "quality_slogan": "\"All semiconductor ware is manufactured under certified quality systems.\"",
-        "products_title": "Our Products",
-        "products_subtitle": "Click any image to view in detail",
+        "products_title": "Product Information",
+        "table_product": "Product Name",
+        "table_material": "Material",
+        "table_spec": "Specification",
+        "table_remarks": "Remarks",
+        "prod_1_name": "Silicon Wafer (Si)",
+        "prod_1_mat": "Single Crystal",
+        "prod_2_name": "SiC Wafer",
+        "prod_2_mat": "Silicon Carbide",
+        "prod_3_name": "GaAs Wafer",
+        "prod_3_mat": "Gallium Arsenide",
         "tech_title": "Technical & Quality Assurance",
         "tech_desc": "Process equipment <span class='separator'>/</span> Inspection standards <span class='separator'>/</span> Cleaning equipment",
         "tech_slogan": "\"Zero-defect manufacturing\"",
@@ -47,6 +56,8 @@ const translations = {
         "form_quantity": "Quantity",
         "form_details": "Request Details (Delivery, Specs, etc.)",
         "form_file": "Attach File (Drawings, Specs)",
+        "form_file_btn": "Choose File",
+        "form_file_none": "No file chosen",
         "form_submit": "Request Quote"
     },
     "de": {
@@ -78,8 +89,17 @@ const translations = {
         "cert_iso": "ISO9001 / ISO14001",
         "cert_rohs": "RoHS Zertifizierung",
         "quality_slogan": "\"Alle Halbleiterwaren werden unter zertifizierten Qualitätssystemen hergestellt.\"",
-        "products_title": "Unsere Produkte",
-        "products_subtitle": "Klicken Sie auf ein Bild für die Detailansicht",
+        "products_title": "Produktinformationen",
+        "table_product": "Produktname",
+        "table_material": "Material",
+        "table_spec": "Spezifikation",
+        "table_remarks": "Bemerkungen",
+        "prod_1_name": "Silizium-Wafer (Si)",
+        "prod_1_mat": "Einkristall",
+        "prod_2_name": "SiC-Wafer",
+        "prod_2_mat": "Siliziumkarbid",
+        "prod_3_name": "GaAs-Wafer",
+        "prod_3_mat": "Galliumarsenid",
         "tech_title": "Technik & Qualitätssicherung",
         "tech_desc": "Prozessanlagen <span class='separator'>/</span> Prüfstandards <span class='separator'>/</span> Reinigungsanlagen",
         "tech_slogan": "\"Null-Fehler-Fertigung\"",
@@ -96,6 +116,8 @@ const translations = {
         "form_quantity": "Menge",
         "form_details": "Anfragedetails (Lieferung, Spezifikationen usw.)",
         "form_file": "Datei anhängen (Zeichnungen, Spezifikationen)",
+        "form_file_btn": "Datei auswählen",
+        "form_file_none": "Keine Datei ausgewählt",
         "form_submit": "Angebot anfordern"
     }
 };
@@ -111,11 +133,16 @@ document.addEventListener('DOMContentLoaded', () => {
         currentLang = lang;
         const elements = document.querySelectorAll('[data-i18n]');
 
+        const fileInput = document.getElementById('file');
+        const hasFile = fileInput && fileInput.files && fileInput.files[0];
+
         elements.forEach(element => {
             const key = element.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) {
                 if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
                     // labels are used, not placeholders
+                } else if (element.id === 'file-name' && hasFile) {
+                    // Keep actual filename, don't overwrite with translation
                 } else {
                     element.innerHTML = translations[lang][key];
                 }
@@ -129,6 +156,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lang-en').addEventListener('click', () => updateLanguage('en'));
     document.getElementById('lang-de').addEventListener('click', () => updateLanguage('de'));
     updateLanguage(defaultLang);
+
+    // Custom file input: show selected filename
+    const fileInput = document.getElementById('file');
+    const fileNameSpan = document.getElementById('file-name');
+    if (fileInput && fileNameSpan) {
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files && fileInput.files[0]) {
+                fileNameSpan.textContent = fileInput.files[0].name;
+                fileNameSpan.style.color = '#333';
+            } else {
+                fileNameSpan.textContent = translations[currentLang]['form_file_none'];
+                fileNameSpan.style.color = '#888';
+            }
+        });
+    }
 
     // ── 문의 폼 제출 처리 ──────────────────────────────────────
     const form = document.querySelector('.contact-form');
@@ -201,229 +243,6 @@ function readFileAsBase64(file) {
         reader.readAsDataURL(file);
     });
 }
-
-// ── Hero: Slideshow (mobile) / Mosaic (desktop) ─────────────────────────────
-(function () {
-    const items = document.querySelectorAll('.hero-mosaic-item');
-    const dots  = document.querySelectorAll('.hero-dot');
-    if (!items.length) return;
-
-    let current = 0;
-    let timer;
-
-    function isMobile() { return window.innerWidth <= 768; }
-
-    function goTo(idx) {
-        items[current].classList.remove('active');
-        if (dots[current]) dots[current].classList.remove('active');
-        current = (idx + items.length) % items.length;
-        items[current].classList.add('active');
-        if (dots[current]) dots[current].classList.add('active');
-    }
-
-    function startTimer() {
-        clearInterval(timer);
-        timer = setInterval(() => { if (isMobile()) goTo(current + 1); }, 5000);
-    }
-
-    dots.forEach((dot, i) => {
-        dot.addEventListener('click', () => { goTo(i); startTimer(); });
-    });
-
-    startTimer();
-})();
-
-// ── Canvas Particles / Star Field ───────────────────────────────────────────
-(function () {
-    const canvas = document.getElementById('particles-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-
-    function isMobile() { return window.innerWidth <= 768; }
-
-    function resize() {
-        canvas.width  = canvas.parentElement.offsetWidth;
-        canvas.height = canvas.parentElement.offsetHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    /* ── 별 생성 ── */
-    function makeStar() {
-        const mobile = isMobile();
-        return {
-            x:            Math.random() * canvas.width,
-            y:            Math.random() * canvas.height,
-            r:            mobile ? Math.random() * 1.6 + 0.3 : Math.random() * 1.4 + 0.3,
-            baseAlpha:    Math.random() * 0.65 + 0.2,
-            alpha:        0,
-            phase:        Math.random() * Math.PI * 2,
-            twinkleSpeed: Math.random() * 0.025 + 0.006,
-            vx:           (Math.random() - 0.5) * (mobile ? 0.08 : 0.3),
-            vy:           -(Math.random() * (mobile ? 0.12 : 0.4) + 0.05),
-        };
-    }
-
-    let stars = [];
-    function initStars() {
-        stars = Array.from({ length: isMobile() ? 150 : 65 }, makeStar);
-    }
-    initStars();
-    window.addEventListener('resize', initStars);
-
-    /* ── 유성 (모바일 전용) ── */
-    const meteors = [];
-    let lastMeteor = 0;
-
-    function makeMeteor() {
-        const startX = Math.random() * canvas.width * 0.8;
-        const startY = Math.random() * canvas.height * 0.4;
-        return {
-            x: startX, y: startY,
-            len:    Math.random() * 100 + 60,
-            speed:  Math.random() * 5 + 4,
-            angle:  Math.PI / 4 + (Math.random() - 0.5) * 0.4,
-            prog:   0,
-            alpha:  1,
-        };
-    }
-
-    /* ── 기포/원형 파티클 (데스크탑용) ── */
-    function drawDesktop() {
-        stars.forEach(p => {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(180, 210, 255, ${p.baseAlpha})`;
-            ctx.fill();
-            p.x += p.vx;
-            p.y += p.vy;
-            if (p.y < -6) { p.y = canvas.height + 6; p.x = Math.random() * canvas.width; }
-            if (p.x < -6)  p.x = canvas.width + 6;
-            if (p.x > canvas.width + 6) p.x = -6;
-        });
-    }
-
-    /* ── 별 + 유성 (모바일용) ── */
-    function drawMobile(now) {
-        /* 별 반짝임 */
-        stars.forEach(s => {
-            s.phase += s.twinkleSpeed;
-            s.alpha  = s.baseAlpha * (0.45 + 0.55 * Math.sin(s.phase));
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(210, 228, 255, ${s.alpha})`;
-            ctx.fill();
-            s.x += s.vx;
-            s.y += s.vy;
-            if (s.y < -6) { s.y = canvas.height + 6; s.x = Math.random() * canvas.width; }
-            if (s.x < -6)  s.x = canvas.width + 6;
-            if (s.x > canvas.width + 6) s.x = -6;
-        });
-
-        /* 유성 생성 (3~6초 간격) */
-        if (now - lastMeteor > 3000 + Math.random() * 3000) {
-            meteors.push(makeMeteor());
-            lastMeteor = now;
-        }
-
-        /* 유성 그리기 */
-        for (let i = meteors.length - 1; i >= 0; i--) {
-            const m = meteors[i];
-            m.prog += m.speed;
-            m.alpha = Math.max(0, 1 - m.prog / (m.len * 1.8));
-
-            const dx = Math.cos(m.angle) * m.prog;
-            const dy = Math.sin(m.angle) * m.prog;
-
-            const g = ctx.createLinearGradient(m.x, m.y, m.x + dx, m.y + dy);
-            g.addColorStop(0, `rgba(255,255,255,0)`);
-            g.addColorStop(1, `rgba(255,255,255,${m.alpha * 0.9})`);
-
-            ctx.beginPath();
-            ctx.moveTo(m.x, m.y);
-            ctx.lineTo(m.x + dx, m.y + dy);
-            ctx.strokeStyle = g;
-            ctx.lineWidth = 1.8;
-            ctx.stroke();
-
-            /* 머리 글로우 */
-            ctx.beginPath();
-            ctx.arc(m.x + dx, m.y + dy, 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255,255,255,${m.alpha})`;
-            ctx.fill();
-
-            if (m.alpha <= 0) meteors.splice(i, 1);
-        }
-    }
-
-    function draw(now) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (isMobile()) {
-            drawMobile(now);
-        } else {
-            drawDesktop();
-        }
-        requestAnimationFrame(draw);
-    }
-    requestAnimationFrame(draw);
-})();
-
-// ── Product Lightbox ────────────────────────────────────────────────────────
-(function () {
-    const lightbox = document.getElementById('lightbox');
-    const lbImg = document.getElementById('lightbox-img');
-    if (!lightbox || !lbImg) return;
-
-    const items = document.querySelectorAll('.gallery-item');
-    const srcs = Array.from(items).map(el => el.dataset.src);
-    let current = 0;
-
-    function open(idx) {
-        current = idx;
-        lbImg.src = srcs[current];
-        lightbox.classList.add('open');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function close() {
-        lightbox.classList.remove('open');
-        document.body.style.overflow = '';
-    }
-
-    function prev() { current = (current - 1 + srcs.length) % srcs.length; lbImg.src = srcs[current]; }
-    function next() { current = (current + 1) % srcs.length; lbImg.src = srcs[current]; }
-
-    items.forEach((item, i) => item.addEventListener('click', () => open(i)));
-    document.querySelector('.lightbox-close').addEventListener('click', close);
-    document.querySelector('.lightbox-prev').addEventListener('click', prev);
-    document.querySelector('.lightbox-next').addEventListener('click', next);
-    lightbox.addEventListener('click', e => { if (e.target === lightbox) close(); });
-    document.addEventListener('keydown', e => {
-        if (!lightbox.classList.contains('open')) return;
-        if (e.key === 'Escape') close();
-        if (e.key === 'ArrowLeft') prev();
-        if (e.key === 'ArrowRight') next();
-    });
-})();
-
-// ── Mobile Nav Menu ─────────────────────────────────────────────────────────
-(function () {
-    const btn = document.querySelector('.mobile-menu-btn');
-    const nav = document.querySelector('.nav');
-    if (!btn || !nav) return;
-
-    btn.addEventListener('click', () => {
-        nav.classList.toggle('nav-open');
-        btn.classList.toggle('open');
-    });
-
-    document.querySelectorAll('.nav-list a').forEach(link => {
-        link.addEventListener('click', () => {
-            nav.classList.remove('nav-open');
-            btn.classList.remove('open');
-        });
-    });
-})();
 
 // 폼 위에 성공/실패 메시지 표시
 function showMessage(type, text) {
