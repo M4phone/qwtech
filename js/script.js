@@ -126,19 +126,6 @@ const translations = {
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsH6ivf0jkD73V8wnTcFpBkh5TUcV8MC5oQmYGmbOd7j6txHGk4yfNJ72s97hwSepR/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Mobile menu toggle
-    const menuBtn = document.querySelector('.mobile-menu-btn');
-    const nav = document.querySelector('.nav');
-    if (menuBtn && nav) {
-        menuBtn.addEventListener('click', () => {
-            nav.classList.toggle('open');
-        });
-        // Close menu when a nav link is clicked
-        nav.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => nav.classList.remove('open'));
-        });
-    }
-
     const defaultLang = 'en';
     let currentLang = defaultLang;
 
@@ -242,6 +229,180 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ── Hero: Slideshow (mobile) / Mosaic (desktop) ─────────────────────────────
+(function () {
+    const items = document.querySelectorAll('.hero-mosaic-item');
+    const dots  = document.querySelectorAll('.hero-dot');
+    if (!items.length) return;
+
+    let current = 0;
+    let timer;
+
+    function isMobile() { return window.innerWidth <= 768; }
+
+    function goTo(idx) {
+        items[current].classList.remove('active');
+        if (dots[current]) dots[current].classList.remove('active');
+        current = (idx + items.length) % items.length;
+        items[current].classList.add('active');
+        if (dots[current]) dots[current].classList.add('active');
+    }
+
+    function startTimer() {
+        clearInterval(timer);
+        timer = setInterval(() => { if (isMobile()) goTo(current + 1); }, 5000);
+    }
+
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => { goTo(i); startTimer(); });
+    });
+
+    startTimer();
+})();
+
+// ── Canvas Particles / Star Field ───────────────────────────────────────────
+(function () {
+    const canvas = document.getElementById('particles-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    function isMobile() { return window.innerWidth <= 768; }
+
+    function resize() {
+        canvas.width  = canvas.parentElement.offsetWidth;
+        canvas.height = canvas.parentElement.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function makeStar() {
+        const mobile = isMobile();
+        return {
+            x:            Math.random() * canvas.width,
+            y:            Math.random() * canvas.height,
+            r:            mobile ? Math.random() * 1.6 + 0.3 : Math.random() * 1.4 + 0.3,
+            baseAlpha:    Math.random() * 0.65 + 0.2,
+            alpha:        0,
+            phase:        Math.random() * Math.PI * 2,
+            twinkleSpeed: Math.random() * 0.025 + 0.006,
+            vx:           (Math.random() - 0.5) * (mobile ? 0.08 : 0.3),
+            vy:           -(Math.random() * (mobile ? 0.12 : 0.4) + 0.05),
+        };
+    }
+
+    let stars = [];
+    function initStars() {
+        stars = Array.from({ length: isMobile() ? 150 : 65 }, makeStar);
+    }
+    initStars();
+    window.addEventListener('resize', initStars);
+
+    const meteors = [];
+    let lastMeteor = 0;
+
+    function makeMeteor() {
+        const startX = Math.random() * canvas.width * 0.8;
+        const startY = Math.random() * canvas.height * 0.4;
+        return {
+            x: startX, y: startY,
+            len:   Math.random() * 100 + 60,
+            speed: Math.random() * 5 + 4,
+            angle: Math.PI / 4 + (Math.random() - 0.5) * 0.4,
+            prog:  0,
+            alpha: 1,
+        };
+    }
+
+    function drawDesktop() {
+        stars.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(180, 210, 255, ${p.baseAlpha})`;
+            ctx.fill();
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.y < -6) { p.y = canvas.height + 6; p.x = Math.random() * canvas.width; }
+            if (p.x < -6)  p.x = canvas.width + 6;
+            if (p.x > canvas.width + 6) p.x = -6;
+        });
+    }
+
+    function drawMobile(now) {
+        stars.forEach(s => {
+            s.phase += s.twinkleSpeed;
+            s.alpha  = s.baseAlpha * (0.45 + 0.55 * Math.sin(s.phase));
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(210, 228, 255, ${s.alpha})`;
+            ctx.fill();
+            s.x += s.vx;
+            s.y += s.vy;
+            if (s.y < -6) { s.y = canvas.height + 6; s.x = Math.random() * canvas.width; }
+            if (s.x < -6)  s.x = canvas.width + 6;
+            if (s.x > canvas.width + 6) s.x = -6;
+        });
+
+        if (now - lastMeteor > 3000 + Math.random() * 3000) {
+            meteors.push(makeMeteor());
+            lastMeteor = now;
+        }
+
+        for (let i = meteors.length - 1; i >= 0; i--) {
+            const m = meteors[i];
+            m.prog += m.speed;
+            m.alpha = Math.max(0, 1 - m.prog / (m.len * 1.8));
+
+            const dx = Math.cos(m.angle) * m.prog;
+            const dy = Math.sin(m.angle) * m.prog;
+
+            const g = ctx.createLinearGradient(m.x, m.y, m.x + dx, m.y + dy);
+            g.addColorStop(0, `rgba(255,255,255,0)`);
+            g.addColorStop(1, `rgba(255,255,255,${m.alpha * 0.9})`);
+
+            ctx.beginPath();
+            ctx.moveTo(m.x, m.y);
+            ctx.lineTo(m.x + dx, m.y + dy);
+            ctx.strokeStyle = g;
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(m.x + dx, m.y + dy, 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255,255,255,${m.alpha})`;
+            ctx.fill();
+
+            if (m.alpha <= 0) meteors.splice(i, 1);
+        }
+    }
+
+    function draw(now) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (isMobile()) drawMobile(now);
+        else drawDesktop();
+        requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+})();
+
+// ── Mobile Nav Menu ─────────────────────────────────────────────────────────
+(function () {
+    const btn = document.querySelector('.mobile-menu-btn');
+    const nav = document.querySelector('.nav');
+    if (!btn || !nav) return;
+
+    btn.addEventListener('click', () => {
+        nav.classList.toggle('nav-open');
+        btn.classList.toggle('open');
+    });
+
+    document.querySelectorAll('.nav-list a').forEach(link => {
+        link.addEventListener('click', () => {
+            nav.classList.remove('nav-open');
+            btn.classList.remove('open');
+        });
+    });
+})();
 
 // 파일을 base64 문자열로 읽기
 function readFileAsBase64(file) {
