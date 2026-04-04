@@ -592,17 +592,159 @@ textarea:focus {
 
 /* Responsive */
 @media (max-width: 768px) {
+    /* Header */
     .header-container {
-        padding: 0 20px;
+        padding: 0 16px;
+    }
+
+    .nav {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        z-index: 999;
+        padding: 12px 0;
+    }
+
+    .nav.open {
+        display: block;
     }
 
     .nav-list {
-        display: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        align-items: stretch;
     }
 
-    /* Mobile Menu Implementation needed for full toggle */
+    .nav-list li a {
+        display: block;
+        padding: 14px 24px;
+        font-size: 16px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .nav-list a.btn-primary {
+        margin: 12px 24px;
+        padding: 12px 20px;
+        text-align: center;
+        border-radius: 4px;
+    }
+
+    .mobile-menu-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 28px;
+        height: 22px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+
+    .mobile-menu-btn span {
+        display: block;
+        width: 100%;
+        height: 3px;
+        background: var(--primary-color);
+        border-radius: 2px;
+        transition: all 0.3s;
+    }
+
+    /* Hero */
+    .hero {
+        height: auto;
+        min-height: 420px;
+        padding-top: 60px;
+        padding-bottom: 40px;
+        align-items: center;
+    }
+
     .hero h1 {
-        font-size: 32px;
+        font-size: 28px;
+        margin-bottom: 14px;
+    }
+
+    .hero p {
+        font-size: 16px;
+        margin-bottom: 28px;
+    }
+
+    .hero-buttons {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    /* Sections */
+    .section {
+        padding: 50px 0;
+    }
+
+    .section-header {
+        margin-bottom: 32px;
+    }
+
+    .section-header h2 {
+        font-size: 26px;
+    }
+
+    /* Profile */
+    .profile-section {
+        padding: 60px 0;
+    }
+
+    .profile-content {
+        padding: 28px 20px;
+    }
+
+    .profile-text p {
+        font-size: 17px;
+    }
+
+    .profile-text::before {
+        font-size: 60px;
+        margin-bottom: -30px;
+    }
+
+    /* Quality */
+    .quality-section-clean {
+        padding: 60px 0;
+    }
+
+    .quality-section-clean .cert-item {
+        font-size: 16px;
+    }
+
+    .quality-section-clean .quote {
+        padding: 14px 18px;
+        font-size: 15px;
+        text-align: left;
+    }
+
+    .cert-grid {
+        gap: 16px;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Cards */
+    .grid-centered {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card {
+        width: 100%;
+        max-width: none;
+    }
+
+    /* Contact */
+    .contact-form-wrapper {
+        padding: 24px 16px;
     }
 
     .contact-form {
@@ -617,31 +759,25 @@ textarea:focus {
         grid-column: span 1;
     }
 
-    .grid-centered {
-        flex-direction: column;
-        align-items: center;
+    /* Table */
+    .product-table th,
+    .product-table td {
+        padding: 10px 12px;
+        font-size: 14px;
     }
 
-    .card {
-        width: 100%;
-        max-width: none;
+    /* Tech badges */
+    .tech-badges {
+        gap: 10px;
     }
 
-    /* Simple mobile menu handling for now */
-    .mobile-menu-btn {
-        display: block;
-        width: 30px;
-        height: 25px;
-        position: relative;
-        cursor: pointer;
+    .badge {
+        font-size: 14px;
+        padding: 6px 12px;
     }
 
-    .mobile-menu-btn span {
-        display: block;
-        width: 100%;
-        height: 3px;
-        background: var(--primary-color);
-        margin-bottom: 5px;
+    .highlight-text {
+        font-size: 18px;
     }
 }
 

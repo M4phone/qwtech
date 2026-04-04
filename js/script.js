@@ -126,6 +126,19 @@ const translations = {
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsH6ivf0jkD73V8wnTcFpBkh5TUcV8MC5oQmYGmbOd7j6txHGk4yfNJ72s97hwSepR/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Mobile menu toggle
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    const nav = document.querySelector('.nav');
+    if (menuBtn && nav) {
+        menuBtn.addEventListener('click', () => {
+            nav.classList.toggle('open');
+        });
+        // Close menu when a nav link is clicked
+        nav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => nav.classList.remove('open'));
+        });
+    }
+
     const defaultLang = 'en';
     let currentLang = defaultLang;
 
