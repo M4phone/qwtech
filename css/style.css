@@ -1135,29 +1135,37 @@ textarea:focus {
     font-weight: 500;
 }
 
+.quality-section-clean .quote-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
 .quality-section-clean .quote {
     color: var(--primary-color);
     border-left: 5px solid var(--secondary-color);
     background: rgba(255, 255, 255, 0.9);
     padding: 20px 30px;
     border-radius: 0 8px 8px 0;
-    margin: 40px auto 0;
     font-style: italic;
     font-weight: 500;
     display: block;
-    width: fit-content;
-    max-width: 100%;
+    max-width: 680px;
+    width: 100%;
     box-sizing: border-box;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    text-align: left;
+    margin: 0;
 }
 
 @media (max-width: 768px) {
+    .quality-section-clean .quote-wrapper {
+        margin-top: 24px;
+    }
+
     .quality-section-clean .quote {
-        width: 100%;
-        margin: 24px 0 0 0;
-        padding: 16px 20px;
         font-size: 15px;
-        text-align: left;
+        padding: 14px 18px;
     }
 }
 
