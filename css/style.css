@@ -1155,7 +1155,16 @@ textarea:focus {
     box-sizing: border-box;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     text-align: left;
+    direction: ltr;
+    unicode-bidi: isolate;
     margin: 0;
+}
+
+/* 브라우저 번역이 추가하는 font[dir=auto] 요소의 bidi 방향 강제 고정 */
+.quality-section-clean .quote font[dir] {
+    direction: inherit !important;
+    unicode-bidi: inherit !important;
+    text-align: inherit !important;
 }
 
 @media (max-width: 768px) {
